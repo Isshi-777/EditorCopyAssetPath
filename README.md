@@ -1,0 +1,2 @@
+# EditorCopyAssetPath
+Unity EditorCopyAssetPath

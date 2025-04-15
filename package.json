@@ -1,0 +1,15 @@
+﻿{
+  "name": "com.isshi777.editor_copy_assetpath",
+  "version": "1.0.0",
+  "displayName": "EditorCopyAssetPath",
+  "description": "Unity EditorCopyAssetPath",
+  "unity": "2022.3",
+  "keywords": [
+    "editor",
+    "tool"
+  ],
+  "author": {
+    "name": "Isshi777",
+    "url": "https://github.com/Isshi-777"
+  }
+}

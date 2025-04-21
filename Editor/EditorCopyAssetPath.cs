@@ -55,37 +55,51 @@ namespace Isshi777
 					continue;
 				}
 
-				var fullPath = Path.GetFullPath(assetPath);
-				if (isAbsolutePath)
+				var fullPath = Path.GetFullPath(assetPath).Replace("\\", "/");
+				if (Directory.Exists(fullPath))
 				{
-					outputPaths.Add(fullPath.Replace("\\", "/"));
+					if (isRecursive)
+					{
+						// 深さ優先とソート付き探索
+						Traverse(fullPath, outputPaths, isAbsolutePath);
+					}
+					else
+					{
+						outputPaths.Add(isAbsolutePath ? fullPath : assetPath.Replace("\\", "/"));
+					}
 				}
 				else
 				{
-					outputPaths.Add(assetPath.Replace("\\", "/"));
-				}
-
-				if (Directory.Exists(fullPath) && isRecursive)
-				{
-					// metaファイルは除く
-					var allFiles = Directory.GetFileSystemEntries(fullPath, "*", SearchOption.AllDirectories).Where(x => !x.EndsWith(".meta"));
-					foreach (var file in allFiles)
-					{
-						if (isAbsolutePath)
-						{
-							outputPaths.Add(file.Replace("\\", "/"));
-						}
-						else
-						{
-							var relativePath = "Assets" + file.Replace("\\", "/").Replace(Application.dataPath, "");
-							Debug.Log(file);
-							Debug.Log(Application.dataPath);
-							outputPaths.Add(relativePath);
-						}
-					}
+					outputPaths.Add(isAbsolutePath ? fullPath : assetPath.Replace("\\", "/"));
 				}
 			}
+
 			return outputPaths;
+		}
+
+		// 深さ優先でソートしながらファイル＆ディレクトリを追加
+		private static void Traverse(string directory, List<string> result, bool isAbsolutePath)
+		{
+			string path = directory.Replace("\\", "/");
+			string baseAssets = Application.dataPath.Replace("\\", "/");
+
+			// 現在のディレクトリを追加
+			result.Add(isAbsolutePath ? path : "Assets" + path.Replace(baseAssets, ""));
+
+			// ファイルをソートして追加(※metaは除外)
+			var files = Directory.GetFiles(directory).Where(f => !f.EndsWith(".meta")).OrderBy(f => f, System.StringComparer.OrdinalIgnoreCase);
+			foreach (var file in files)
+			{
+				string normalized = file.Replace("\\", "/");
+				result.Add(isAbsolutePath ? normalized : "Assets" + normalized.Replace(baseAssets, ""));
+			}
+
+			// サブフォルダもソートして再帰
+			var dirs = Directory.GetDirectories(directory).OrderBy(d => d, System.StringComparer.OrdinalIgnoreCase);
+			foreach (var dir in dirs)
+			{
+				Traverse(dir, result, isAbsolutePath);
+			}
 		}
 	}
 }
